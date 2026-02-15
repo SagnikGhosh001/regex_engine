@@ -1,7 +1,12 @@
 import { describe, it } from "@std/testing/bdd";
 import { assertEquals } from "@std/assert";
 
-import { match, matchOne, search } from "../src/functionalities.js";
+import {
+  match,
+  matchOne,
+  matchQuestion,
+  search,
+} from "../src/functionalities.js";
 
 describe("matchOne", () => {
   describe("when pattern is empty", () => {
@@ -123,6 +128,41 @@ describe("match", () => {
       assertEquals(match("$", "$"), false);
     });
   });
+
+  describe("match - question mark branch", () => {
+    describe("when pattern contains ?", () => {
+      it("delegates to matchQuestion and matches correctly", () => {
+        assertEquals(match("a?b", "ab"), true);
+        assertEquals(match("a?b", "b"), true);
+        assertEquals(match("a?b", "aab"), false);
+      });
+    });
+
+    describe("when using optional wildcard", () => {
+      it("handles .? correctly", () => {
+        assertEquals(match(".?b", "ab"), true);
+        assertEquals(match(".?b", "b"), true);
+        assertEquals(match(".?b", "xb"), true);
+      });
+    });
+
+    describe("when pattern has multiple optional characters", () => {
+      it("matches correctly", () => {
+        assertEquals(match("a?b?c", "abc"), true);
+        assertEquals(match("a?b?c", "ac"), true);
+        assertEquals(match("a?b?c", "bc"), true);
+        assertEquals(match("a?b?c", "abbc"), false);
+      });
+    });
+
+    describe("when pattern with ? is followed by end anchor", () => {
+      it("respects remaining pattern", () => {
+        assertEquals(match("a?$", "a"), true);
+        assertEquals(match("a?$", ""), true);
+        assertEquals(match("a?$", "aa"), false);
+      });
+    });
+  });
 });
 
 describe("search", () => {
@@ -177,6 +217,42 @@ describe("search", () => {
     it.ignore("returns false when text is empty and pattern is non-empty", () => {
       assertEquals(search("a", ""), false);
       assertEquals(search("^a", ""), false);
+    });
+  });
+});
+
+describe("matchQuestion", () => {
+  describe("when the character before ? matches and is consumed", () => {
+    it("matches once and continues with remaining pattern", () => {
+      assertEquals(matchQuestion("a?b", "ab"), true);
+      assertEquals(matchQuestion("a?b", "b"), true);
+    });
+  });
+
+  describe("when the character before ? does not match", () => {
+    it("skips the optional character", () => {
+      assertEquals(matchQuestion("a?b", "b"), true);
+      assertEquals(matchQuestion("a?b", "ab"), true);
+    });
+  });
+
+  describe("when optional character is present multiple times", () => {
+    it("matches only one occurrence", () => {
+      assertEquals(matchQuestion("a?b", "aab"), false);
+    });
+  });
+
+  describe("when pattern uses .? (optional wildcard)", () => {
+    it("matches with or without one character", () => {
+      assertEquals(matchQuestion(".?b", "ab"), true);
+      assertEquals(matchQuestion(".?b", "b"), true);
+    });
+  });
+
+  describe("when neither branch matches", () => {
+    it("returns false", () => {
+      assertEquals(matchQuestion("a?b", "ac"), false);
+      assertEquals(matchQuestion("a?b", "xyz"), false);
     });
   });
 });
