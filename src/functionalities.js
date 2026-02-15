@@ -5,6 +5,16 @@ export const matchOne = (pattern, text) => {
   return pattern === text;
 };
 
+export const search = (pattern, text) => {
+  if (pattern[0] === "^") {
+    return match(pattern.slice(1), text);
+  }
+
+  if (!pattern) return true;
+
+  return text.split("").some((_, index) => match(pattern, text.slice(index)));
+};
+
 export const match = (pattern, text) => {
   if (!pattern) return true;
   if (pattern === "$") return text === "";

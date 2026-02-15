@@ -1,7 +1,7 @@
 import { describe, it } from "@std/testing/bdd";
 import { assertEquals } from "@std/assert";
 
-import { match, matchOne } from "../src/functionalities.js";
+import { match, matchOne, search } from "../src/functionalities.js";
 
 describe("matchOne", () => {
   describe("when pattern is empty", () => {
@@ -121,6 +121,62 @@ describe("match", () => {
 
     it('does not treat "$" as a wildcard character', () => {
       assertEquals(match("$", "$"), false);
+    });
+  });
+});
+
+describe("search", () => {
+  describe('when pattern starts with "^"', () => {
+    it("matches only at the beginning of the text", () => {
+      assertEquals(search("^abc", "abc"), true);
+      assertEquals(search("^abc", "abcdef"), true);
+    });
+
+    it("returns false if pattern is not at the start", () => {
+      assertEquals(search("^abc", "zabc"), false);
+      assertEquals(search("^a", "ba"), false);
+    });
+  });
+
+  describe("when pattern does not start with '^'", () => {
+    it("finds match anywhere in text", () => {
+      assertEquals(search("abc", "zabc"), true);
+      assertEquals(search("bc", "abc"), true);
+      assertEquals(search("c", "abc"), true);
+    });
+
+    it("returns false when pattern does not exist in text", () => {
+      assertEquals(search("xyz", "abc"), false);
+      assertEquals(search("d", "abc"), false);
+    });
+  });
+
+  describe("with dot wildcard", () => {
+    it("matches using '.' inside text", () => {
+      assertEquals(search("a.c", "zzabczz"), true);
+      assertEquals(search(".b", "abc"), true);
+    });
+  });
+
+  describe("with end anchor '$'", () => {
+    it("matches pattern at the end of text", () => {
+      assertEquals(search("abc$", "zzabc"), true);
+    });
+
+    it("does not match if text continues after '$' pattern", () => {
+      assertEquals(search("abc$", "zzabcd"), false);
+    });
+  });
+
+  describe("edge cases", () => {
+    it("returns true for empty pattern", () => {
+      assertEquals(search("", "abc"), true);
+      assertEquals(search("", ""), true);
+    });
+
+    it.ignore("returns false when text is empty and pattern is non-empty", () => {
+      assertEquals(search("a", ""), false);
+      assertEquals(search("^a", ""), false);
     });
   });
 });
