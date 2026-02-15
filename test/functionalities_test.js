@@ -5,6 +5,7 @@ import {
   match,
   matchOne,
   matchQuestion,
+  matchStar,
   search,
 } from "../src/functionalities.js";
 
@@ -163,6 +164,41 @@ describe("match", () => {
       });
     });
   });
+  describe("match - star branch", () => {
+    describe("when pattern contains *", () => {
+      it("delegates to matchStar and matches correctly", () => {
+        assertEquals(match("a*b", "b"), true);
+        assertEquals(match("a*b", "ab"), true);
+        assertEquals(match("a*b", "aaab"), true);
+        assertEquals(match("a*b", "aac"), false);
+      });
+    });
+
+    describe("when using .*", () => {
+      it("matches any sequence including empty", () => {
+        assertEquals(match(".*", ""), true);
+        assertEquals(match(".*", "abc"), true);
+        assertEquals(match(".*c", "abc"), true);
+      });
+    });
+
+    describe("when multiple star patterns exist", () => {
+      it("matches complex patterns correctly", () => {
+        assertEquals(match("a*b*c", "aaabbbc"), true);
+        assertEquals(match("a*b*c", "abc"), true);
+        assertEquals(match("a*b*c", "c"), true);
+        assertEquals(match("a*b*c", "abdc"), false);
+      });
+    });
+
+    describe("when star pattern is followed by end anchor", () => {
+      it("respects remaining pattern", () => {
+        assertEquals(match("a*$", ""), true);
+        assertEquals(match("a*$", "aaa"), true);
+        assertEquals(match("a*$", "aaab"), false);
+      });
+    });
+  });
 });
 
 describe("search", () => {
@@ -253,6 +289,43 @@ describe("matchQuestion", () => {
     it("returns false", () => {
       assertEquals(matchQuestion("a?b", "ac"), false);
       assertEquals(matchQuestion("a?b", "xyz"), false);
+    });
+  });
+});
+
+describe("matchStar", () => {
+  describe("when character before * appears zero times", () => {
+    it("skips the character and continues matching", () => {
+      assertEquals(matchStar("a*b", "b"), true);
+      assertEquals(matchStar("a*b", "ab"), true);
+    });
+  });
+
+  describe("when character before * appears one time", () => {
+    it("matches and consumes one character", () => {
+      assertEquals(matchStar("a*b", "ab"), true);
+    });
+  });
+
+  describe("when character before * appears multiple times", () => {
+    it("matches all occurrences", () => {
+      assertEquals(matchStar("a*b", "aaab"), true);
+      assertEquals(matchStar("a*b", "aaaaab"), true);
+    });
+  });
+
+  describe("when using .* (wildcard star)", () => {
+    it("matches any sequence of characters", () => {
+      assertEquals(matchStar(".*b", "ab"), true);
+      assertEquals(matchStar(".*b", "xyzb"), true);
+      assertEquals(matchStar(".*b", "b"), true);
+    });
+  });
+
+  describe("when pattern does not match", () => {
+    it("returns false", () => {
+      assertEquals(matchStar("a*b", "aac"), false);
+      assertEquals(matchStar("a*b", "xyz"), false);
     });
   });
 });
