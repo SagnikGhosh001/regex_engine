@@ -86,9 +86,9 @@ describe("match", () => {
       assertEquals(match("abc", "ab"), false);
     });
 
-    // it("returns false when text is longer than pattern", () => {
-    //   assertEquals(match("ab", "abc"), false);
-    // });
+    it("returns true when text is longer than pattern but matches", () => {
+      assertEquals(match("ab", "abc"), true);
+    });
   });
 
   describe("complex cases", () => {
@@ -98,6 +98,29 @@ describe("match", () => {
 
     it("returns false if any character does not match", () => {
       assertEquals(match("a..d", "abce"), false);
+    });
+  });
+
+  describe('end anchor "$"', () => {
+    it('matches when pattern is "$" and text is empty', () => {
+      assertEquals(match("$", ""), true);
+    });
+
+    it('does not match when pattern is "$" and text is not empty', () => {
+      assertEquals(match("$", "a"), false);
+      assertEquals(match("$", "abc"), false);
+    });
+
+    it('matches when "$" appears at the end of a matching pattern', () => {
+      assertEquals(match("abc$", "abc"), true);
+    });
+
+    it('does not match when "$" appears at the end but text continues', () => {
+      assertEquals(match("abc$", "abcd"), false);
+    });
+
+    it('does not treat "$" as a wildcard character', () => {
+      assertEquals(match("$", "$"), false);
     });
   });
 });
