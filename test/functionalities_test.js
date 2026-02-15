@@ -6,7 +6,7 @@ import {
   matchOne,
   matchQuestion,
   matchStar,
-  search,
+  regexMatch,
 } from "../src/functionalities.js";
 
 describe("matchOne", () => {
@@ -201,58 +201,58 @@ describe("match", () => {
   });
 });
 
-describe("search", () => {
+describe("regexMatch", () => {
   describe('when pattern starts with "^"', () => {
     it("matches only at the beginning of the text", () => {
-      assertEquals(search("^abc", "abc"), true);
-      assertEquals(search("^abc", "abcdef"), true);
+      assertEquals(regexMatch("^abc", "abc"), true);
+      assertEquals(regexMatch("^abc", "abcdef"), true);
     });
 
     it("returns false if pattern is not at the start", () => {
-      assertEquals(search("^abc", "zabc"), false);
-      assertEquals(search("^a", "ba"), false);
+      assertEquals(regexMatch("^abc", "zabc"), false);
+      assertEquals(regexMatch("^a", "ba"), false);
     });
   });
 
   describe("when pattern does not start with '^'", () => {
     it("finds match anywhere in text", () => {
-      assertEquals(search("abc", "zabc"), true);
-      assertEquals(search("bc", "abc"), true);
-      assertEquals(search("c", "abc"), true);
+      assertEquals(regexMatch("abc", "zabc"), true);
+      assertEquals(regexMatch("bc", "abc"), true);
+      assertEquals(regexMatch("c", "abc"), true);
     });
 
     it("returns false when pattern does not exist in text", () => {
-      assertEquals(search("xyz", "abc"), false);
-      assertEquals(search("d", "abc"), false);
+      assertEquals(regexMatch("xyz", "abc"), false);
+      assertEquals(regexMatch("d", "abc"), false);
     });
   });
 
   describe("with dot wildcard", () => {
     it("matches using '.' inside text", () => {
-      assertEquals(search("a.c", "zzabczz"), true);
-      assertEquals(search(".b", "abc"), true);
+      assertEquals(regexMatch("a.c", "zzabczz"), true);
+      assertEquals(regexMatch(".b", "abc"), true);
     });
   });
 
   describe("with end anchor '$'", () => {
     it("matches pattern at the end of text", () => {
-      assertEquals(search("abc$", "zzabc"), true);
+      assertEquals(regexMatch("abc$", "zzabc"), true);
     });
 
     it("does not match if text continues after '$' pattern", () => {
-      assertEquals(search("abc$", "zzabcd"), false);
+      assertEquals(regexMatch("abc$", "zzabcd"), false);
     });
   });
 
   describe("edge cases", () => {
     it("returns true for empty pattern", () => {
-      assertEquals(search("", "abc"), true);
-      assertEquals(search("", ""), true);
+      assertEquals(regexMatch("", "abc"), true);
+      assertEquals(regexMatch("", ""), true);
     });
 
     it.ignore("returns false when text is empty and pattern is non-empty", () => {
-      assertEquals(search("a", ""), false);
-      assertEquals(search("^a", ""), false);
+      assertEquals(regexMatch("a", ""), false);
+      assertEquals(regexMatch("^a", ""), false);
     });
   });
 });
